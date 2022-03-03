@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
-        <version>21</version>
+        <version>25</version>
     </parent>
 
     <groupId>org.apache.shiro</groupId>
@@ -434,6 +434,22 @@
                         <target>${maven.compiler.target}</target>
                         <complianceLevel>${maven.compiler.target}</complianceLevel>
                         <showWeaveInfo>true</showWeaveInfo>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <configuration>
+                        <excludes>
+                            <!-- default config -->
+                            <exclude>**/*.md5</exclude>
+                            <exclude>**/*.sha1</exclude>
+                            <exclude>**/*.sha256</exclude>
+                            <exclude>**/*.sha512</exclude>
+                            <exclude> **/*.asc</exclude>
+                            <!-- additional hashes -->
+                            <exclude>**/*.sha3512</exclude>
+                        </excludes>
                     </configuration>
                 </plugin>
             </plugins>
@@ -1475,10 +1491,14 @@
                     <plugin>
                         <groupId>net.nicoulaj.maven.plugins</groupId>
                         <artifactId>checksum-maven-plugin</artifactId>
-                        <version>1.11</version>
                         <executions>
                             <execution>
                                 <id>source-release-checksum</id>
+                                <phase>none</phase>
+                            </execution>
+                            <execution>
+                                <id>main-artifact-checksum</id>
+                                <phase>verify</phase>
                                 <goals>
                                     <goal>artifacts</goal>
                                 </goals>
@@ -1486,10 +1506,16 @@
                         </executions>
                         <configuration>
                             <algorithms>
+                                <algorithm>SHA-256</algorithm>
                                 <algorithm>SHA-512</algorithm>
                                 <algorithm>SHA3-512</algorithm>
                             </algorithms>
                             <csvSummary>false</csvSummary>
+                            <!--
+                              attach checksums as well to upload to Maven Staging Repo,
+                              as this eases uploading from stage to dist and doesn't do harm in Maven Central
+                            -->
+                            <attachChecksums>true</attachChecksums>
                         </configuration>
                     </plugin>
                 </plugins>
